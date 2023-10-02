@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        ModelExample::factory()->count(1)->create();
         $this->call([
             CategoriaSeeder::class,
             AlmacenSeeder::class,

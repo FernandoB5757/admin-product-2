@@ -7,13 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Articulo extends Model implements HasMedia
+
+class Articulo extends Model
 {
     use HasFactory;
-    use InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -50,22 +48,6 @@ class Articulo extends Model implements HasMedia
         return $this->belongsToMany(Almacen::class)
             ->withPivot('stock');
     }
-
-    public function getImagenAttribute()
-    {
-        return $this->getFirstMedia('articulos');
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('articulos')
-            ->acceptsMimeTypes([
-                'image/jpeg', 'image/png', 'image/bmp',
-                'image/gif', 'image/webp', 'image/svg+xml'
-            ])
-            ->singleFile();
-    }
-
 
     protected function precioFormat(): Attribute
     {
