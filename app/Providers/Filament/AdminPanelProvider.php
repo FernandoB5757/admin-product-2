@@ -17,6 +17,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use Awcodes\Curator\CuratorPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,13 +30,25 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
+            ->plugins(
+                [
+                    FilamentSpatieRolesPermissionsPlugin::make(),
+                    CuratorPlugin::make()
+                        ->label('Media')
+                        ->pluralLabel('Media')
+                        ->navigationIcon('heroicon-o-photo')
+                        ->navigationGroup('Content')
+                        ->navigationSort(3)
+                        ->navigationCountBadge()
+                ]
+            )
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
@@ -53,6 +67,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->viteTheme('resources/css/filament/admin/theme.css');
     }
 }
