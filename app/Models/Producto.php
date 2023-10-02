@@ -12,7 +12,7 @@ class Producto extends Model
 {
     use HasFactory;
 
-    protected $hidden  = ['id', 'sub_categoria_id'];
+    //protected $hidden  = ['id'];
 
     protected $fillable =  [
         'nombre',
