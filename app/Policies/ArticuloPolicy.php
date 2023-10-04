@@ -13,7 +13,7 @@ class ArticuloPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class ArticuloPolicy
      */
     public function view(User $user, Articulo $articulo): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class ArticuloPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class ArticuloPolicy
      */
     public function update(User $user, Articulo $articulo): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class ArticuloPolicy
      */
     public function delete(User $user, Articulo $articulo): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -53,7 +53,7 @@ class ArticuloPolicy
      */
     public function restore(User $user, Articulo $articulo): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class ArticuloPolicy
      */
     public function forceDelete(User $user, Articulo $articulo): bool
     {
-        //
+        return true;
     }
 }
