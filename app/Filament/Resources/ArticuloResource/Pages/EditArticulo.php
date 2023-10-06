@@ -16,4 +16,11 @@ class EditArticulo extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['costo_unitario'] = $this->record->producto->costo_unitario;
+
+        return $data;
+    }
 }

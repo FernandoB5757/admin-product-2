@@ -49,7 +49,7 @@ class ProductoResource extends Resource
                                     ->afterStateUpdated(function (Set $set) {
                                         $set('sub_categoria_id', null);
                                     })
-                                    ->live(),
+                                    ->live(onBlur: true),
                                 Select::make('sub_categoria_id')
                                     ->required()
                                     ->searchable()

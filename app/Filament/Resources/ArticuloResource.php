@@ -4,9 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticuloResource\Pages;
 use App\Filament\Resources\ArticuloResource\RelationManagers;
+use App\Helpers\ClaveGenerator;
+use App\Helpers\Helpers;
 use App\Models\Articulo;
 use App\Models\Producto;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -23,6 +26,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Livewire\Component as Livewire;
 
 class ArticuloResource extends Resource
 {
@@ -52,7 +56,16 @@ class ArticuloResource extends Resource
                             ->columnSpan([
                                 'md' => 8,
                             ])
-                            ->required(),
+                            ->required()
+                            ->hintAction(
+                                Action::make('generarClaves')
+                                    ->icon('heroicon-m-cog-6-tooth')
+                                    ->action(function (string|float|null $state, Set $set, Get $get, Livewire $livewire) {
+                                        $claves = ClaveGenerator::generarClaves($get('nombre'));
+                                        $set('clave', $claves['clave']);
+                                        $set('clave_alterna', $claves['clave_alterna']);
+                                    })
+                            ),
                         TextInput::make('clave_alterna')
                             ->columnSpan([
                                 'md' => 4,
@@ -67,7 +80,17 @@ class ArticuloResource extends Resource
                                     ])
                                     ->required()
                                     ->searchable(['nombre'])
-                                    ->preload(),
+                                    ->preload()
+                                    ->afterStateUpdated(function (string|float|null $state, Set $set, Get $get) {
+                                        $record = Producto::find($state);
+                                        $set('costo_unitario', $record->costo_unitario ?? 0);
+                                        $set('precio', Helpers::makePrecio(
+                                            $record->costo_unitario ?? 0,
+                                            $get('valor_equivalente'),
+                                            $get('porcentaje')
+                                        ));
+                                    })
+                                    ->live(onBlur: true),
                                 TextInput::make('valor_equivalente')
                                     ->columnSpan([
                                         'md' => 4,
@@ -84,35 +107,35 @@ class ArticuloResource extends Resource
                             ->schema([
                                 TextInput::make('costo_unitario')
                                     ->numeric()
-                                    ->required()
-                                    ->step(0.1)
                                     ->minValue(0)
-                                    ->default(0)
-                                    ->prefix('$'),
+                                    ->prefix('$')
+                                    ->disabled()
+                                    ->readOnly(),
                                 TextInput::make('porcentaje')
                                     ->numeric()
                                     ->prefix('%')
                                     ->minValue(0)
-                                    ->default(0)
-                                    ->step(0.1)
-                                    ->afterStateUpdated(function (string|float|null $state, Set $set, Get $get) {
-                                        $costo_unitario = floatval($get('costo_unitario') ?? 0);
-                                        $valor_equivalente = floatval($get('valor_equivalente') ?? 0);
-                                        $porcentaje = floatval($state ?? 0) *  0.01;
-                                        $porcentaje = floatval($state ?? 0) *  0.01;
-                                        $margen = $costo_unitario * $porcentaje;
-                                        $precio = $margen + $costo_unitario * $valor_equivalente;
-                                        $set('precio', $precio);
-                                    })
-                                    ->live(),
+                                    ->default(1)
+                                    ->step(0.1),
                                 TextInput::make('precio')
                                     ->numeric()
                                     ->required()
                                     ->prefix('$')
                                     ->minValue(0)
                                     ->default(0)
-                                    ->step(0.1)
-                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Precio del artículo.'),
+                                    ->step(0.01)
+                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Precio del artículo.')
+                                    ->suffixAction(
+                                        Action::make('generarPrecio')
+                                            ->icon('heroicon-m-sparkles')
+                                            ->action(function (string|float|null $state, Set $set, Get $get) {
+                                                $set('precio',  Helpers::makePrecio(
+                                                    $get('costo_unitario'),
+                                                    $get('valor_equivalente'),
+                                                    $get('porcentaje')
+                                                ));
+                                            })
+                                    ),
                                 Toggle::make('usa_embace')
                                     ->columnSpanFull()
                                     ->helperText('¿El artículo usa embace?')
