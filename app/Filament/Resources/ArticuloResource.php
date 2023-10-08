@@ -3,12 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticuloResource\Pages;
-use App\Filament\Resources\ArticuloResource\RelationManagers;
 use App\Helpers\ClaveGenerator;
 use App\Helpers\Helpers;
 use App\Models\Articulo;
 use App\Models\Producto;
-use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -21,16 +19,16 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Forms\Components\FileUpload;
 use Livewire\Component as Livewire;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Tabs;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Layout\Grid as LayoutGrid;
+use Filament\Tables\Enums\ActionsPosition;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ArticuloResource extends Resource
@@ -195,13 +193,34 @@ class ArticuloResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+                '2xl' => 4,
+            ])
             ->columns([
-                TextColumn::make('id')
-                    ->sortable(),
-                TextColumn::make('nombre')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('clave')
+                LayoutGrid::make(12)
+                    ->schema([
+                        ImageColumn::make('imagen')
+                            ->size(225)
+                            ->defaultImageUrl(url('/images/default_articulo.png')),
+                        TextColumn::make('insumo')
+                            ->badge()
+                            ->formatStateUsing(fn (Articulo $articulo) => $articulo->esInsumo)
+                            ->color(fn ($state): string => $state ? 'success' : 'primary')
+                            ->columnSpanFull(),
+                        TextColumn::make('nombre')
+                            ->searchable()
+                            ->sortable()
+                            ->description(function (Articulo $articulo) {
+                                return $articulo?->clave;
+                            })
+                            ->columnSpanFull(),
+
+                    ]),
+
+
+                /* TextColumn::make('clave')
                     ->searchable()
                     ->sortable()
                     ->description(fn (Articulo $articulo) => $articulo?->clave_alterna),
@@ -218,14 +237,16 @@ class ArticuloResource extends Resource
                 TextColumn::make('insumo')
                     ->badge()
                     ->formatStateUsing(fn (Articulo $articulo) => $articulo->esInsumo)
-                    ->color(fn ($state): string => $state ? 'success' : 'primary')
+                    ->color(fn ($state): string => $state ? 'success' : 'primary') */
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                ]),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

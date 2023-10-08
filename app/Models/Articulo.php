@@ -83,7 +83,7 @@ class Articulo extends Model
     public function imagen(): Attribute
     {
         return Attribute::make(
-            get: fn () => current($this->imagenes),
+            get: fn () =>  current($this->imagenes) ? current($this->imagenes) : null,
         );
     }
 
