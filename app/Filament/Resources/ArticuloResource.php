@@ -26,7 +26,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Filament\Forms\Components\FileUpload;
 use Livewire\Component as Livewire;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Tabs;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ArticuloResource extends Resource
 {
@@ -38,121 +43,152 @@ class ArticuloResource extends Resource
     {
         return $form
             ->schema([
-                Grid::make()
-                    ->columns(12)
-                    ->schema([
-                        TextInput::make('nombre')
-                            ->columnSpan([
-                                'md' => 8,
-                            ])
-                            ->required(),
-                        Toggle::make('insumo')
-                            ->columnSpan([
-                                'md' => 4,
-                            ])
-                            ->hint('¿El artículo es un insumo?')
-                            ->columnSpanFull(),
-                        TextInput::make('clave')
-                            ->columnSpan([
-                                'md' => 8,
-                            ])
-                            ->required()
-                            ->hintAction(
-                                Action::make('generarClaves')
-                                    ->icon('heroicon-m-cog-6-tooth')
-                                    ->action(function (string|float|null $state, Set $set, Get $get, Livewire $livewire) {
-                                        $claves = ClaveGenerator::generarClaves($get('nombre'));
-                                        $set('clave', $claves['clave']);
-                                        $set('clave_alterna', $claves['clave_alterna']);
-                                    })
-                            ),
-                        TextInput::make('clave_alterna')
-                            ->columnSpan([
-                                'md' => 4,
-                            ])
-                            ->required(),
-                        Fieldset::make('Producto')
+                Tabs::make('articulo')
+                    ->tabs([
+                        Tabs\Tab::make('Datos')
                             ->schema([
-                                Select::make('producto_id')
-                                    ->relationship(name: 'producto', titleAttribute: 'nombre')
-                                    ->columnSpan([
-                                        'md' => 8,
+                                Grid::make()
+                                    ->columns(12)
+                                    ->schema([
+
+                                        TextInput::make('nombre')
+                                            ->columnSpan([
+                                                'md' => 8,
+                                            ])
+                                            ->required(),
+                                        Toggle::make('insumo')
+                                            ->columnSpan([
+                                                'md' => 4,
+                                            ])
+                                            ->hint('¿El artículo es un insumo?')
+                                            ->columnSpanFull(),
+                                        TextInput::make('clave')
+                                            ->columnSpan([
+                                                'md' => 8,
+                                            ])
+                                            ->required()
+                                            ->hintAction(
+                                                Action::make('generarClaves')
+                                                    ->icon('heroicon-m-cog-6-tooth')
+                                                    ->action(function (string|float|null $state, Set $set, Get $get, Livewire $livewire) {
+                                                        $claves = ClaveGenerator::generarClaves($get('nombre'));
+                                                        $set('clave', $claves['clave']);
+                                                        $set('clave_alterna', $claves['clave_alterna']);
+                                                    })
+                                            ),
+                                        TextInput::make('clave_alterna')
+                                            ->columnSpan([
+                                                'md' => 4,
+                                            ])
+                                            ->required(),
+                                        Fieldset::make('Producto')
+                                            ->schema([
+                                                Select::make('producto_id')
+                                                    ->relationship(name: 'producto', titleAttribute: 'nombre')
+                                                    ->columnSpan([
+                                                        'md' => 8,
+                                                    ])
+                                                    ->required()
+                                                    ->searchable(['nombre'])
+                                                    ->preload()
+                                                    ->afterStateUpdated(function (string|float|null $state, Set $set, Get $get) {
+                                                        $record = Producto::find($state);
+                                                        $set('costo_unitario', $record->costo_unitario ?? 0);
+                                                        $set('precio', Helpers::makePrecio(
+                                                            $record->costo_unitario ?? 0,
+                                                            $get('valor_equivalente'),
+                                                            $get('porcentaje')
+                                                        ));
+                                                    })
+                                                    ->live(onBlur: true),
+                                                TextInput::make('valor_equivalente')
+                                                    ->columnSpan([
+                                                        'md' => 4,
+                                                    ])
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->default(0)
+                                                    ->prefixIcon('heroicon-o-inbox-stack')
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Ejemplo: Equivale a 4 litros de producto X.'),
+                                            ])
+                                            ->columns(12),
+                                        Fieldset::make('Costos')
+                                            ->schema([
+                                                TextInput::make('costo_unitario')
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->prefix('$')
+                                                    ->disabled()
+                                                    ->readOnly(),
+                                                TextInput::make('porcentaje')
+                                                    ->numeric()
+                                                    ->prefix('%')
+                                                    ->minValue(0)
+                                                    ->default(1)
+                                                    ->step(0.1),
+                                                TextInput::make('precio')
+                                                    ->numeric()
+                                                    ->required()
+                                                    ->prefix('$')
+                                                    ->minValue(0)
+                                                    ->default(0)
+                                                    ->step(0.01)
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Precio del artículo.')
+                                                    ->suffixAction(
+                                                        Action::make('generarPrecio')
+                                                            ->icon('heroicon-m-sparkles')
+                                                            ->action(function (string|float|null $state, Set $set, Get $get) {
+                                                                $set('precio',  Helpers::makePrecio(
+                                                                    $get('costo_unitario'),
+                                                                    $get('valor_equivalente'),
+                                                                    $get('porcentaje')
+                                                                ));
+                                                            })
+                                                    ),
+                                                Toggle::make('usa_embace')
+                                                    ->columnSpanFull()
+                                                    ->helperText('¿El artículo usa embace?')
+                                                    ->live(),
+                                                TextInput::make('precio_embase')
+                                                    ->numeric()
+                                                    ->prefix('$')
+                                                    ->minValue(0)
+                                                    ->step(0.1)
+                                                    ->requiredIf('usa_embace', true)
+                                                    ->columnSpanFull()
+                                                    ->hidden(fn (Get $get): bool => !$get('usa_embace')),
+                                            ])
+                                            ->columns(3),
+                                        Textarea::make('descripcion')
+                                            ->translateLabel()
+                                            ->columnSpanFull(),
+
                                     ])
-                                    ->required()
-                                    ->searchable(['nombre'])
-                                    ->preload()
-                                    ->afterStateUpdated(function (string|float|null $state, Set $set, Get $get) {
-                                        $record = Producto::find($state);
-                                        $set('costo_unitario', $record->costo_unitario ?? 0);
-                                        $set('precio', Helpers::makePrecio(
-                                            $record->costo_unitario ?? 0,
-                                            $get('valor_equivalente'),
-                                            $get('porcentaje')
-                                        ));
-                                    })
-                                    ->live(onBlur: true),
-                                TextInput::make('valor_equivalente')
-                                    ->columnSpan([
-                                        'md' => 4,
-                                    ])
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->prefixIcon('heroicon-o-inbox-stack')
-                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Ejemplo: Equivale a 4 litros de producto X.'),
-                            ])
-                            ->columns(12),
-                        Fieldset::make('Costos')
+                            ]),
+                        Tabs\Tab::make('Imagenes')
                             ->schema([
-                                TextInput::make('costo_unitario')
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->prefix('$')
-                                    ->disabled()
-                                    ->readOnly(),
-                                TextInput::make('porcentaje')
-                                    ->numeric()
-                                    ->prefix('%')
-                                    ->minValue(0)
-                                    ->default(1)
-                                    ->step(0.1),
-                                TextInput::make('precio')
-                                    ->numeric()
-                                    ->required()
-                                    ->prefix('$')
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->step(0.01)
-                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Precio del artículo.')
-                                    ->suffixAction(
-                                        Action::make('generarPrecio')
-                                            ->icon('heroicon-m-sparkles')
-                                            ->action(function (string|float|null $state, Set $set, Get $get) {
-                                                $set('precio',  Helpers::makePrecio(
-                                                    $get('costo_unitario'),
-                                                    $get('valor_equivalente'),
-                                                    $get('porcentaje')
-                                                ));
-                                            })
-                                    ),
-                                Toggle::make('usa_embace')
-                                    ->columnSpanFull()
-                                    ->helperText('¿El artículo usa embace?')
-                                    ->live(),
-                                TextInput::make('precio_embase')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->minValue(0)
-                                    ->step(0.1)
-                                    ->requiredIf('usa_embace', true)
-                                    ->columnSpanFull()
-                                    ->hidden(fn (Get $get): bool => !$get('usa_embace')),
+                                FileUpload::make('imagenes')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->multiple()
+                                    ->imageEditor()
+                                    ->directory(
+                                        fn (?Articulo $record): string => Articulo::IMAGE_DIRECTORY . $record->id
+                                    )
+                                    ->visibility('public')
+                                    ->reorderable()
+                                    ->getUploadedFileNameForStorageUsing(
+                                        fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                            ->prepend('articulo-image' . str()->uuid()),
+                                    )
+                                    ->maxFiles(4)
+                                    ->columnSpanFull(),
                             ])
-                            ->columns(3),
-                        Textarea::make('descripcion')
-                            ->columnSpanFull()
+                            ->visible(fn (?Articulo $record) => $record !== null)
+
                     ])
+                    ->persistTabInQueryString()
+                    ->columnSpanFull()
             ]);
     }
 

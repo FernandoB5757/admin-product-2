@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Awcodes\Curator\Models\Media;
 
 
 class Articulo extends Model
@@ -28,9 +29,15 @@ class Articulo extends Model
         'insumo',
         'usa_embace',
         'precio',
-        'precio_embase'
+        'precio_embase',
+        'imagenes'
     ];
 
+    protected $casts = [
+        'imagenes' => 'array',
+    ];
+
+    public const IMAGE_DIRECTORY = 'imagenes/articulos/';
 
     /**
      * Pertenece a un producto
@@ -49,6 +56,16 @@ class Articulo extends Model
             ->withPivot('stock');
     }
 
+    /*  public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('articulos')
+            ->acceptsMimeTypes([
+                'image/jpeg', 'image/png', 'image/bmp',
+                'image/gif', 'image/webp', 'image/svg+xml'
+            ])
+            ->singleFile();
+    } */
+
     protected function precioFormat(): Attribute
     {
         return Attribute::make(
@@ -60,6 +77,13 @@ class Articulo extends Model
     {
         return Attribute::make(
             get: fn ($value) => ucfirst($value),
+        );
+    }
+
+    public function imagen(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => current($this->imagenes),
         );
     }
 
