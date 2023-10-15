@@ -24,7 +24,7 @@ class UnidadResource extends Resource
 
     protected static ?string $modelLabel = 'unidad de medida';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube-transparent';
 
     protected static ?string $pollingInterval = '10s';
 
