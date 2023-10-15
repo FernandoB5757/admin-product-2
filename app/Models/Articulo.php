@@ -93,4 +93,11 @@ class Articulo extends Model
             get: fn () => $this->insumo ? 'Insumo' : 'Articulo',
         );
     }
+
+    protected function unidad(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->producto->unidad,
+        );
+    }
 }

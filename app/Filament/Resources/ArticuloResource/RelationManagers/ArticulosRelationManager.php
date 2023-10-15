@@ -43,7 +43,8 @@ class ArticulosRelationManager extends RelationManager
                 TextColumn::make('valor_equivalente')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (Articulo $articulo) => "Equivale a {$articulo->valor_equivalente} {$articulo->producto->unidadNombre} de {$articulo->producto->nombre}"),
+                    ->formatStateUsing(fn (Articulo $articulo) => "$articulo->valor_equivalente {$articulo->unidad->clave}")
+                    ->tooltip(fn (Articulo $articulo) => "Equivale a {$articulo->valor_equivalente} {$articulo->unidad->clave} de {$articulo->producto->nombre}"),
                 TextColumn::make('precio')
                     ->searchable()
                     ->sortable()
