@@ -68,4 +68,12 @@ class Producto extends Model
             get: fn () => $this->articulos()->where('insumo', true)->count() === 1,
         );
     }
+
+
+    public function unidadNombre(): Attribute
+    {
+        return Attribute::make(
+            get: fn () =>  strtolower($this->unidad->nombre),
+        );
+    }
 }

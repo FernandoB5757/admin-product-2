@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ArticuloResource\RelationManagers\ArticulosRelationManager;
 use App\Filament\Resources\ProductoResource\Pages;
 use App\Filament\Resources\ProductoResource\RelationManagers;
 use App\Models\Categoria;
@@ -134,7 +135,7 @@ class ProductoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ArticulosRelationManager::class,
         ];
     }
 
