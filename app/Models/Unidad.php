@@ -24,12 +24,21 @@ class Unidad extends Model
         'estatus' => EstatusUnidad::class,
     ];
 
+    protected $withCount = [
+        'productos'
+    ];
+
     /**
      * Tiene muchos productos
      */
     public function productos(): HasMany
     {
         return $this->hasMany(Producto::class);
+    }
+
+    public function hasProductos(): bool
+    {
+        return $this->productos_count > 0;
     }
 
     protected function nombre(): Attribute
