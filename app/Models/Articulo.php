@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Awcodes\Curator\Models\Media;
-
+use Milon\Barcode\DNS1D;
+use Milon\Barcode\Facades\DNS1DFacade;
 
 class Articulo extends Model
 {
@@ -98,6 +99,20 @@ class Articulo extends Model
     {
         return Attribute::make(
             get: fn () => $this->producto->unidad,
+        );
+    }
+
+    protected function barcode(): Attribute
+    {
+        return Attribute::make(
+            get: fn () =>  DNS1DFacade::getBarcodeHTML('4445645656', 'PHARMA2T', 3, 33),
+        );
+    }
+
+    protected function barcodeImage(): Attribute
+    {
+        return Attribute::make(
+            get: fn () =>  DNS1DFacade::getBarcodePNGPath(code: fake()->uuid(), type: 'C128', showCode: true),
         );
     }
 }

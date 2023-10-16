@@ -28,10 +28,13 @@ use Filament\Forms\Components\FileUpload;
 use Livewire\Component as Livewire;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Layout\Grid as LayoutGrid;
 use Filament\Tables\Enums\ActionsPosition;
+use Illuminate\View\View;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Milon\Barcode\Facades\DNS1DFacade;
 
 class ArticuloResource extends Resource
 {
@@ -97,7 +100,12 @@ class ArticuloResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
-                ]),
+                    Tables\Actions\Action::make('advance')
+                        ->modalContent(fn (Articulo $record): View => view(
+                            'barcode',
+                            ['record' => $record],
+                        )),
+                ])
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

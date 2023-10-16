@@ -13,7 +13,7 @@ class AlmacenPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class AlmacenPolicy
      */
     public function view(User $user, Almacen $almacen): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -41,7 +41,7 @@ class AlmacenPolicy
      */
     public function update(User $user, Almacen $almacen): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -49,7 +49,7 @@ class AlmacenPolicy
      */
     public function delete(User $user, Almacen $almacen): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -57,7 +57,7 @@ class AlmacenPolicy
      */
     public function restore(User $user, Almacen $almacen): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -65,6 +65,6 @@ class AlmacenPolicy
      */
     public function forceDelete(User $user, Almacen $almacen): bool
     {
-        //
+        return true;
     }
 }
