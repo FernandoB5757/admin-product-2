@@ -24,6 +24,14 @@ class AlmacenArticulo extends Model
         return $this->belongsTo(Articulo::class, 'articulo_id', 'id');
     }
 
+    /**
+     * Pertenece a un almacen
+     */
+    public function almacen(): BelongsTo
+    {
+        return $this->belongsTo(Almacen::class, 'almacen_id', 'id');
+    }
+
     public function scopearticulosenAlmacen(Builder $query, int $almacenId, ?array $articulosIds = null): void
     {
         $query->where('almacen_id', $almacenId);
