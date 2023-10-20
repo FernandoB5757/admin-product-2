@@ -17,7 +17,7 @@ class CortePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -25,7 +25,7 @@ class CortePolicy
      */
     public function view(User $user, Corte $corte): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -41,7 +41,7 @@ class CortePolicy
      */
     public function update(User $user, Corte $corte): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -49,7 +49,7 @@ class CortePolicy
      */
     public function delete(User $user, Corte $corte): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -57,7 +57,7 @@ class CortePolicy
      */
     public function restore(User $user, Corte $corte): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -65,6 +65,6 @@ class CortePolicy
      */
     public function forceDelete(User $user, Corte $corte): bool
     {
-        //
+        return true;
     }
 }
