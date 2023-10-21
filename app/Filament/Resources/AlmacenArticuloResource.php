@@ -16,15 +16,18 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AlmacenArticuloResource extends Resource
 {
     protected static ?string $model = AlmacenArticulo::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
+
+    protected static ?string $navigationLabel = 'Existencias';
+
+    protected static ?string $navigationGroup = 'Almacen';
+
+    protected static ?string $modelLabel = 'existencia';
 
     public static function form(Form $form): Form
     {
@@ -55,7 +58,13 @@ class AlmacenArticuloResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('articulo.nombre')
-                    ->label('Articulo'),
+                    ->label('Articulo')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('articulo.clave')
+                    ->label('Clave de articulo')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('almacen.nombre')
                     ->label('Almacén'),
                 TextColumn::make('stock')

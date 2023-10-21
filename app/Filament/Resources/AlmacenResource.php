@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AlmacenResource\Pages;
-use App\Filament\Resources\AlmacenResource\RelationManagers;
 use App\Models\Almacen;
-use Filament\Forms;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -13,14 +11,17 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AlmacenResource extends Resource
 {
     protected static ?string $model = Almacen::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
+
+    protected static ?string $navigationGroup = 'Almacen';
+
+    protected static ?string $navigationLabel = 'Almacenes';
+
 
     public static function form(Form $form): Form
     {
