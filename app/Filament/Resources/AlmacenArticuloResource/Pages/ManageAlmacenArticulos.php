@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AlmacenArticuloResource\Pages;
 
+use App\Actions\Almacen\UpdateStock;
 use App\Filament\Resources\AlmacenArticuloResource;
 use Filament\Actions;
 use Filament\Notifications\Notification;
@@ -17,14 +18,7 @@ class ManageAlmacenArticulos extends ManageRecords
         return [
             Actions\CreateAction::make()
                 ->using(function (array $data, string $model): Model {
-                    $articuloAlmacen = $model::where('articulo_id', $data['articulo_id'])
-                        ->where('almacen_id', $data['almacen_id'])->first();
-                    if ($articuloAlmacen) {
-                        $articuloAlmacen->stock = $data['stock'];
-                        $articuloAlmacen->save();
-                        return $articuloAlmacen;
-                    }
-                    return $model::create($data);
+                    return UpdateStock::updateOrCreate($data);
                 })
                 ->successNotification(
                     Notification::make()

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\Almacen\UpdateStock;
 use App\Filament\Resources\AlmacenArticuloResource\Pages;
 use App\Filament\Resources\AlmacenArticuloResource\RelationManagers;
 use App\Models\AlmacenArticulo;
@@ -16,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class AlmacenArticuloResource extends Resource
 {
@@ -94,7 +96,10 @@ class AlmacenArticuloResource extends Resource
                                 ->success()
                                 ->title('Stock actualizado')
                                 ->body('Se ah agregado al almacen el stock con exito.'),
-                        ),
+                        )
+                        ->using(function (Model $record, array $data, string $model): Model {
+                            return UpdateStock::updateOrCreate($data);
+                        }),
                     Tables\Actions\DeleteAction::make(),
                 ])
             ])
