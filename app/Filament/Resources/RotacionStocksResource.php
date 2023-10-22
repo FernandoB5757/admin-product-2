@@ -7,6 +7,7 @@ use App\Filament\Resources\RotacionStocksResource\RelationManagers;
 use App\Helpers\Helpers;
 use App\Models\AlmacenArticulo;
 use App\Models\Articulo;
+use App\Models\Enums\TipoRotacion;
 use App\Models\RotacionStocks;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -43,46 +44,22 @@ class RotacionStocksResource extends Resource
     {
         return $form
             ->schema([
-                Textarea::make('descripcion')
-                    ->required()
-                    ->translateLabel()
-                    ->columnSpanFull()
-                    ->live(),
+                Select::make('user_id')
+                    ->label('Creador')
+                    ->relationship(name: 'user', titleAttribute: 'name')
+                    ->disabled()
+                    ->columnSpan(1),
+                Select::make('tipo')
+                    ->options(TipoRotacion::class)
+                    ->disabled()
+                    ->columnSpan(1),
                 Repeater::make('rotaciones')
                     ->relationship()
                     ->schema([
                         Grid::make(12)
                             ->schema([
-                                Select::make('articulo_id')
-                                    ->label('Articulo')
-                                    ->options(options: function (
-                                        Get $get,
-                                        string|int|null $state
-                                    ) {
-                                        $ids = Helpers::getNoRepetId($get('../../rotaciones'), $state ?? 0);
-                                        return Articulo::query()->whereNotIn('id', $ids)
-                                            ->get()->pluck('nombre', 'id')->toArray();
-                                    })
-                                    ->getSearchResultsUsing(
-                                        function (string $search, Get $get): array {
-                                            $ids = Helpers::getNoRepetId($get('../../rotaciones'), $state ?? 0);
-                                            return Articulo::where('nombre', 'like', "%{$search}%")
-                                                ->orWhere('clave', $search)
-                                                ->whereNotIn('id', $ids)
-                                                ->limit(10)
-                                                ->pluck('nombre', 'id')
-                                                ->toArray();
-                                        }
-                                    )
-                                    ->afterStateUpdated(
-                                        function (?string $state, Set $set): void {
-                                            $articuloAlmacen = AlmacenArticulo::findRegister($state ?? 0);
-                                            $set('stock_antes', $articuloAlmacen->stock ?? 0);
-                                        }
-                                    )
-                                    ->searchable()
-                                    ->columnSpanFull()
-                                    ->live(onBlur: true),
+                                TextInput::make('articulo_id')
+                                    ->hidden(),
                                 TextInput::make('stock_antes')
                                     ->columnSpan([
                                         'sm' => 12,
@@ -98,22 +75,20 @@ class RotacionStocksResource extends Resource
                                         'sm' => 12,
                                         'md' => 6
                                     ])
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->default(0)
-                                    ->step(0.5)
+                                    ->disabled()
+                                    ->readOnly()
                                     ->prefixIcon('heroicon-o-inbox-stack'),
                             ])
 
                     ])
-                    ->minItems(1)
-                    ->itemLabel('Articulo')
-                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                        dd($data);
-                        return $data;
-                    })
-                    ->columnSpanFull()
+                    ->collapsible()
+                    ->collapsed()
+                    ->itemLabel(fn ($state) => Articulo::find($state['articulo_id'])->nombre ?? 'Articulo')
+                    ->columnSpanFull(),
+                Textarea::make('descripcion')
+                    ->required()
+                    ->translateLabel()
+                    ->columnSpanFull(),
             ]);
     }
 
