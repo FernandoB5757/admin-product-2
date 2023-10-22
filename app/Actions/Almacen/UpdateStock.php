@@ -6,6 +6,7 @@ use App\Models\AlmacenArticulo;
 use App\Models\Enums\TipoRotacion;
 use App\Models\RotacionesStocks;
 use App\Models\RotacionStocks;
+use Illuminate\Support\Facades\DB;
 
 class UpdateStock
 {
@@ -16,8 +17,7 @@ class UpdateStock
      */
     public static function updateOrCreate(array $data): AlmacenArticulo
     {
-        $articuloAlmacen = AlmacenArticulo::where('articulo_id', $data['articulo_id'])
-            ->where('almacen_id', $data['almacen_id'])->first();
+        $articuloAlmacen = AlmacenArticulo::findRegister($data['articulo_id'], $data['almacen_id']);
 
         if ($articuloAlmacen) {
             $oldStock = $articuloAlmacen->stock;
@@ -47,5 +47,54 @@ class UpdateStock
             'stock_antes' => $oldStock,
             'stock_despues' => $register->stock,
         ]);
+    }
+
+    /**
+     * Crea o edita stocks del almacen.
+     *
+     * @param array $input
+     */
+    public static function updateOrCreateMultiple(array $ajustes, array $rotacionData, int $almacenId = 1): void
+    {
+        $rotaciones = [];
+        DB::beginTransaction();
+        try {
+            foreach ($ajustes as $key => $data) {
+                $articuloAlmacen = AlmacenArticulo::findRegister($data['articulo_id'], $almacenId);
+                $rotacion = new RotacionesStocks([
+                    'articulo_id' => $data['articulo_id'],
+                    'stock_despues' => $data['stock']
+                ]);
+
+                if ($articuloAlmacen) {
+                    $rotacion->stock_antes = $articuloAlmacen->stock;
+                    $articuloAlmacen->stock = $data['stock'];
+                    $articuloAlmacen->save();
+                } else {
+                    $rotacion->stock_antes = 0;
+                    AlmacenArticulo::create([
+                        'articulo_id' => $data['articulo_id'],
+                        'almacen_id' => $almacenId,
+                        'stock' => $data['stock']
+                    ]);
+                }
+                $rotaciones[] = $rotacion;
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+            DB::rollBack();
+        }
+        DB::commit();
+
+        self::createRotationes($rotaciones, $rotacionData);
+    }
+
+    public static function createRotationes(array $rotaciones, array $rotacionData, int $almacenId = 1)
+    {
+        if (empty($rotaciones)) {
+            return;
+        }
+        $rotacion = RotacionStocks::create($rotacionData);
+        $rotacion->rotaciones()->saveMany($rotaciones);
     }
 }

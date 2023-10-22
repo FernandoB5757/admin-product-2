@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RotacionStocksResource\Pages;
 use App\Filament\Resources\RotacionStocksResource\RelationManagers;
 use App\Helpers\Helpers;
+use App\Models\AlmacenArticulo;
 use App\Models\Articulo;
 use App\Models\RotacionStocks;
 use Filament\Forms;
@@ -74,12 +75,14 @@ class RotacionStocksResource extends Resource
                                         }
                                     )
                                     ->afterStateUpdated(
-                                        function (?string $state, Get $get, Set $set): array {
-                                            // $stock =
+                                        function (?string $state, Set $set): void {
+                                            $articuloAlmacen = AlmacenArticulo::findRegister($state ?? 0);
+                                            $set('stock_antes', $articuloAlmacen->stock ?? 0);
                                         }
                                     )
                                     ->searchable()
-                                    ->columnSpanFull(),
+                                    ->columnSpanFull()
+                                    ->live(onBlur: true),
                                 TextInput::make('stock_antes')
                                     ->columnSpan([
                                         'sm' => 12,
@@ -104,18 +107,18 @@ class RotacionStocksResource extends Resource
                             ])
 
                     ])
+                    ->minItems(1)
+                    ->itemLabel('Articulo')
+                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                        dd($data);
+                        return $data;
+                    })
                     ->columnSpanFull()
             ]);
     }
 
     public static function table(Table $table): Table
     {
-        /*
-          'tipo',
-        'user_id',
-        'almacen_id',
-        // 'venta_id',
-        'descripcion' */
         return $table
             ->columns([
                 TextColumn::make('id')
@@ -133,6 +136,17 @@ class RotacionStocksResource extends Resource
                     ->searchable(),
                 TextColumn::make('almacen.nombre')
                     ->label('Almacén'),
+                TextColumn::make('descripcion')
+                    ->translateLabel()
+                    ->limit(50)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= $column->getCharacterLimit()) {
+                            return null;
+                        }
+                        return $state;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

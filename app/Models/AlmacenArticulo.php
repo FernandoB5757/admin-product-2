@@ -39,6 +39,12 @@ class AlmacenArticulo extends Model
             $query->whereIn('articulo_id', $articulosIds);
     }
 
+    public static function  findRegister(int $articuloId, int $almacenId = 1): AlmacenArticulo|null
+    {
+        return self::where('almacen_id', $almacenId)
+            ->where('articulo_id', $articuloId)->first();
+    }
+
     public function scopearticuloenAlmacen(Builder $query, int $almacenId, int $articuloId): void
     {
         $query->where('almacen_id', $almacenId)->where('articulo_id', $articuloId);

@@ -114,6 +114,7 @@ class AlmacenArticuloResource extends Resource
     {
         return [
             'index' => Pages\ManageAlmacenArticulos::route('/'),
+            'ajuste' => Pages\AjusteRapido::route('/ajuste/{almacen?}'),
         ];
     }
 }
