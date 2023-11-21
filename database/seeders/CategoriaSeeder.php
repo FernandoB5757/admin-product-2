@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Categoria;
 use App\Models\SubCategoria;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class CategoriaSeeder extends Seeder
@@ -37,16 +38,18 @@ class CategoriaSeeder extends Seeder
             ],
         ]);
 
-        $categoria_id = Categoria::factory()->create()->id;
+        if (App::isLocal()) {
+            $categoria_id = Categoria::factory()->create()->id;
 
-        SubCategoria::factory()->count(3)->create([
-            'categoria_id' => $categoria_id
-        ]);
+            SubCategoria::factory()->count(3)->create([
+                'categoria_id' => $categoria_id
+            ]);
 
-        $categoria_id = Categoria::factory()->create()->id;
+            $categoria_id = Categoria::factory()->create()->id;
 
-        SubCategoria::factory()->count(3)->create([
-            'categoria_id' => $categoria_id
-        ]);
+            SubCategoria::factory()->count(3)->create([
+                'categoria_id' => $categoria_id
+            ]);
+        }
     }
 }

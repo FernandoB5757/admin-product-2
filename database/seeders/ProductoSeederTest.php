@@ -27,6 +27,10 @@ class ProductoSeeder extends Seeder
             'costo' => 10.5,
         ])->id;
 
+        Articulo::factory(3)->create([
+            'producto_id' => $productoId,
+        ]);
+
         $productoId = Producto::create([
             'nombre' => 'SH. MAXI COLOR BLANCO',
             'cantidad_minima' => '10',
@@ -35,6 +39,10 @@ class ProductoSeeder extends Seeder
             'costo_unitario' => 11.9,
             'costo' => 10.9,
         ])->id;
+
+        Articulo::factory(3)->create([
+            'producto_id' => $productoId,
+        ]);
 
         $productoId = Producto::create([
             'nombre' => 'SH. MAXI COLOR NEGRO ECO',
@@ -45,6 +53,9 @@ class ProductoSeeder extends Seeder
             'costo' => 10.9,
         ])->id;
 
+        Articulo::factory(3)->create([
+            'producto_id' => $productoId,
+        ]);
 
         $productoId = Producto::create([
             'nombre' => 'SH. MAXI COLOR MEZCLILLA',
@@ -54,5 +65,9 @@ class ProductoSeeder extends Seeder
             'costo_unitario' => 11.5,
             'costo' => 11.5,
         ])->id;
+
+        Articulo::factory(3)->create([
+            'producto_id' => $productoId,
+        ]);
     }
 }

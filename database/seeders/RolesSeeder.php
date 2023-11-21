@@ -65,9 +65,40 @@ class RolesSeeder extends Seeder
         'articulo.updateStock',
     ];
 
-    const ROTACION_PERMISSIONS = [
+    const CORTES_PERMISSIONS = [
+        'corte.show',
+        'corte.create',
+        'corte.update',
+        'corte.delete'
+    ];
+
+    const EXISTENCIAS_PERMISSIONS = [
+        'existencia.show',
+        'existencia.create',
+        'existencia.update',
+        'existencia.delete',
+    ];
+
+    const ROTACIONES_PERMISSIONS = [
         'rotacion.show',
-        'rotacion.details',
+        'rotacion.create',
+        'rotacion.update',
+        'rotacion.delete',
+    ];
+
+    const VENTA_PERMISSIONS = [
+        'venta.show',
+        'venta.create',
+        'venta.update',
+        'venta.delete',
+        'venta.delete',
+    ];
+    const REFUND_PERMISSIONS = [
+        'refund.show_any',
+        'refund.show',
+        'refund.create',
+        'refund.update',
+        'refund.delete',
     ];
 
     /**
@@ -87,6 +118,10 @@ class RolesSeeder extends Seeder
             ...$this->allPermissions()
         ]);
         $this->createRole('Desarrollador')->givePermissionTo([
+            ...$this->allPermissions()
+        ]);
+
+        $this->createRole('Empleado')->givePermissionTo([
             ...$this->allPermissions()
         ]);
     }
@@ -118,7 +153,7 @@ class RolesSeeder extends Seeder
             ...self::CAJA_PERMISSIONS,
             ...self::PRODUCTO_PERMISSIONS,
             ...self::ARTICULO_PERMISSIONS,
-            ...self::ROTACION_PERMISSIONS
+            ...self::ROTACIONES_PERMISSIONS
         ];
     }
 }
